@@ -1,0 +1,116 @@
+﻿@{
+    Layout = null;
+    var db = Database.Open("Megadesk");
+
+    var selectCommand = "SELECT * FROM Quote";
+    var searchTerm = "";
+
+    if (!Request.QueryString["searchCustomer"].IsEmpty())
+    {
+        selectCommand = "SELECT * FROM Quote WHERE CustomerName = @0";
+        searchTerm = Request.QueryString["searchCustomer"];
+    }
+
+    var selectedData = db.Query(selectCommand, searchTerm);
+    var grid = new WebGrid(source: selectedData, defaultSort: "CustomerName", rowsPerPage: 5);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Mega Desk</title>
+    <link href="https://fonts.googleapis.com/css?family=Cardo:400,700|Oswald" rel="stylesheet">
+    <link href="~/Styles.css" rel="stylesheet">
+    <style type="text/css">
+
+        .grid {
+            margin: 4px;
+            border-collapse: collapse;
+            width: 600px;
+        }
+
+        .grid th {
+            background-color: #4CAF50; /* Green */
+        }
+
+        .grid th, .grid td {
+            border: 1px solid #C0C0C0;
+            padding: 5px;
+        }
+
+        .head {
+            background-color: #E8E8E8;
+            font-family: 'Questrial', sans-serif;
+            font-weight: bold;
+            color: #FFF;
+        }
+
+        .alt {
+            background-color: #E8E8E8;
+            color: #000;
+        }
+
+        a {
+            color: #ffce00; /* Yellow */
+            font-family: 'Oswald', sans-serif;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        a:active {
+            color: black;
+        }
+
+        a:visited {
+            color: #ffce00;
+        }
+
+    </style>
+</head>
+<body style="width: 55%;">
+    <div id="content" >
+        <!-- Using a nested DIV to set margin instead of setting padding
+        to #content onsubmit="validateForm()"-->
+        <div style="margin: 10%;">
+            <h1>Mega Desk</h1>
+            <form method="get">
+                <a href="~/AddQuote">Add a quote</a><br>
+                
+                <div style="text-align: center; margin-bottom: 6%;">
+                    <input type="text" name="searchCustomer" value="@Request.QueryString["searchCustomer"]" />
+                    <input class="button" type="Submit" value="Search Customer" /><br />
+                </div>
+            </form>
+            <div>
+                @grid.GetHtml(
+                    tableStyle: "grid",
+                    headerStyle: "head",
+                    columns: grid.Columns(
+                                    grid.Column("CustomerName", "Name"),
+                                    grid.Column("Date"),
+                                    grid.Column("Width", canSort: false),
+                                    grid.Column("Depth", canSort: false),
+                                    grid.Column("NumberOfDrawers", "Drawers", canSort: false),
+                                    grid.Column("Material", canSort: false),
+                                    grid.Column("OrderDays", "Days", canSort: false),
+                                    grid.Column("TotalAmount", "Total Amount", canSort: false),
+                                    grid.Column(format: @<a href="~/EditQuote?id=@item.ID">Edit</a>),
+                                    grid.Column(format: @<a href="~/DeleteQuote?id=@item.ID">Delete</a>)
+
+
+                )
+
+
+          )
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

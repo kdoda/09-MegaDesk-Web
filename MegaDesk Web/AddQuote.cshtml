@@ -1,0 +1,92 @@
+﻿@{
+    Layout = null;
+
+    //Validation is done on the client side
+    if (IsPost)
+    {
+        var customerName = Request.Form["customerName"];
+        var width = Request.Form["width"];
+        var depth = Request.Form["depth"];
+        var numberOfDrawers = Request.Form["numberOfDrawers"];
+        var materialParts = Request.Form["material"];
+        var material = materialParts.Split('-')[1];
+        var orderDays = Request.Form["orderDays"];
+        var totalAmount = Request.Form["totalAmount"];
+
+        var db = Database.Open("Megadesk");
+        var insertCommand = "INSERT INTO Quote (CustomerName, Width, Depth, NumberOfDrawers, Material, OrderDays, TotalAmount) " +
+                    "Values(@0, @1, @2, @3, @4, @5, @6)";
+        db.Execute(insertCommand, customerName, width, depth, numberOfDrawers, material, orderDays, totalAmount);
+        Response.Redirect("~/Megadesk");
+    }
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Add a Scripture</title>
+    <link href="https://fonts.googleapis.com/css?family=Cardo:400,700|Oswald" rel="stylesheet">
+    <link href="~/Styles.css" rel="stylesheet">
+    <script src="Scripts.js"> </script>
+
+</head>
+<body>
+    <div id="content">
+        <!-- Using a nested DIV to set margin instead of setting padding
+        to #content onsubmit="validateForm()"-->
+        <div style="margin: 10%;">
+            <form method="post" onsubmit="return calculateTotalAmount()">
+                <div>
+                    <h1>Add Quote</h1>
+                    @Html.ValidationSummary()
+
+                    <label for="customerName">Customer Name:</label>
+                    <input required class="textInput" type="text" name="customerName" /><br />
+
+                    <label for="width">Width:</label>
+                    <input required id="width" class="textInput" type="text" name="width" onkeyup="validateWidth()"
+                           pattern="2[4-9]|[3-8][0-9]|9[0-6]" oninvalid="setCustomValidity('Width should be from 24 to 96.')" oninput="setCustomValidity('')" /><br>
+
+                    <label for="depth">Depth:</label>
+                    <input required id="depth" class="textInput" type="text" name="depth" onkeyup="validateDepth()"
+                           pattern="1[2-9]|3[0-9]|4[0-8]" oninvalid="setCustomValidity('Depth should be from 12 to 48.')" oninput="setCustomValidity('')" /><br>
+
+                    <label for="numberOfDrawers">Number of Drawers:</label>
+                    <input required id="numberOfDrawers" class="textInput" type="text" name="numberOfDrawers" /><br>
+
+                    <label for="material">Material:</label>
+                    <select required id="material" style="width: 100%;" name="material">
+                        <option value="">Please Select</option>
+                        <option value="50-Pine">Pine</option>
+                        <option value="100-Laminate">Laminate</option>
+                        <option value="125-Veneer">Veneer</option>
+                        <option value="200-Oak">Oak</option>
+                        <option value="300-Rosewood">Rosewood</option>
+                    </select><br>
+
+                    <label for="orderDays">Order Days:</label>
+                    <select required id="orderDays" style="width: 100%;" name="orderDays">
+                        <option value="">Please Select</option>
+                        <option value="3">3 (Rush)</option>
+                        <option value="5">5 (Rush)</option>
+                        <option value="7">7 (Rush)</option>
+                        <option value="14">14 (Normal)</option>
+                    </select><br>
+
+                    <label for="totalAmount">Total Amount:</label>
+                    <input readonly id="totalAmount" class="textInput" type="text" name="totalAmount" /><br><br>
+
+                    <div style="text-align: center; margin-top: 6%;">
+                        <!-- Just calculate don't reload-->
+                        <input class="button" type="submit" name="buttonReview" value="Review" onclick="setSubmitButton(this)" />
+                        <!-- Just calculate and submit-->
+                        <input class="button" type="submit" name="buttonSubmit" value="Add Quote" onclick="setSubmitButton(this)" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

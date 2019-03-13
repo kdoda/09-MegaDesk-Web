@@ -1,0 +1,162 @@
+﻿@{
+    Layout = null;
+
+    var customerName = "";
+    var width = "";
+    var depth = "";
+    var numberOfDrawers = "";
+    var materialParts = "";
+    var material = "";
+    var orderDays = "";
+    var totalAmount = "";
+    var id = "";
+
+    //Validation is done on the client size
+    if (IsPost)
+    {
+        customerName = Request.Form["customerName"];
+        width = Request.Form["width"];
+        depth = Request.Form["depth"];
+        numberOfDrawers = Request.Form["numberOfDrawers"];
+        materialParts = Request.Form["material"];
+        material = materialParts.Split('-')[1];
+        orderDays = Request.Form["orderDays"];
+        totalAmount = Request.Form["totalAmount"];
+        id = Request.Form["id"];
+
+      
+        var db = Database.Open("Megadesk");
+        var updateCommand = "UPDATE Quote SET CustomerName=@0, Width=@1, Depth=@2, NumberOfDrawers=@3, Material=@4, OrderDays=@5, TotalAmount=@6 WHERE Id=@7";
+        db.Execute(updateCommand, customerName, width, depth, numberOfDrawers, material, orderDays, totalAmount, id);
+        Response.Redirect("~/Megadesk");
+        
+    }
+    else
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            id = Request.QueryString["ID"];
+            var db = Database.Open("Megadesk");
+            var dbCommand = "SELECT * FROM Quote WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, id);
+
+            if (row != null)
+            {
+                customerName = row.CustomerName;
+                width = row.Width.ToString();
+                depth = row.Depth.ToString();
+                numberOfDrawers = row.NumberOfDrawers.ToString();
+                material = row.Material;
+                orderDays = row.OrderDays.ToString();
+                totalAmount = row.TotalAmount.ToString();
+            }
+            else
+            {
+                Validation.AddFormError("No quotes was selected.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No quotes was selected.");
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Edit Quote</title>
+    <link href="https://fonts.googleapis.com/css?family=Cardo:400,700|Oswald" rel="stylesheet">
+    <link href="~/Styles.css" rel="stylesheet">
+    <script src="Scripts.js"></script>
+    <script>
+
+        //After the document Loads
+        window.onload = function () {
+            //Material DropDownBox
+            var material = document.getElementById("material")
+            var materialOptions = material.options
+            for (var i = 0; i < materialOptions.length; ++i) {
+                var materialParts = materialOptions[i].value
+                var materialValue = materialParts.split("-")[1]
+                if (materialValue == "@material") {
+                    material.selectedIndex = i
+                    break
+                }
+            }
+
+            //OrderDays DropDownBox
+            var orderDays = document.getElementById("orderDays")
+            var orderDaysOptions = orderDays.options
+            for (var i = 0; i < orderDaysOptions.length; ++i) {
+
+                if (orderDaysOptions[i].value == "@orderDays"){
+                    orderDays.selectedIndex = i
+                    break
+                }
+            }
+        };
+
+    </script>
+</head>
+<body>
+    <div id="content">
+        <!-- Using a nested DIV to set margin instead of setting padding
+    to #content onsubmit="validateForm()"-->
+        <div style="margin: 10%;">
+            <form method="post" onsubmit="return calculateTotalAmount()">
+                <div>
+                    <h1>Edit Quote</h1>
+                    @Html.ValidationSummary()
+
+                    <label for="customerName">Customer Name:</label>
+                    <input required class="textInput" type="text" name="customerName" value="@customerName" /><br />
+
+                    <label for="width">Width:</label>
+                    <input required id="width" class="textInput" type="text" name="width" value="@width" onkeyup="validateWidth()"
+                           pattern="2[4-9]|[3-8][0-9]|9[0-6]" oninvalid="setCustomValidity('Width should be from 24 to 96.')" oninput="setCustomValidity('')" /><br>
+
+                    <label for="depth">Depth:</label>
+                    <input required id="depth" class="textInput" type="text" name="depth" value="@depth" onkeyup="validateDepth()"
+                           pattern="1[2-9]|3[0-9]|4[0-8]" oninvalid="setCustomValidity('Depth should be from 12 to 48.')" oninput="setCustomValidity('')" /><br>
+
+                    <label for="numberOfDrawers">Number of Drawers:</label>
+                    <input required id="numberOfDrawers" class="textInput" type="text" name="numberOfDrawers" value="@numberOfDrawers" /><br>
+
+                    <label for="material">Material:</label>
+                    <select required id="material" style="width: 100%;" name="material">
+                        <option value="">Please Select</option>
+                        <option value="50-Pine">Pine</option>
+                        <option value="100-Laminate">Laminate</option>
+                        <option value="125-Veneer">Veneer</option>
+                        <option value="200-Oak">Oak</option>
+                        <option value="300-Rosewood">Rosewood</option>
+                    </select><br>
+
+                    <label for="orderDays">Order Days:</label>
+                    <select required id="orderDays" style="width: 100%;" name="orderDays">
+                        <option value="">Please Select</option>
+                        <option value="3">3 (Rush)</option>
+                        <option value="5">5 (Rush)</option>
+                        <option value="7">7 (Rush)</option>
+                        <option value="14">14 (Normal)</option>
+                    </select><br>
+
+                    <label for="totalAmount">Total Amount:</label>
+                    <input readonly id="totalAmount" class="textInput" type="text" name="totalAmount" value="@totalAmount" /><br><br>
+
+                    <input type="hidden" name="id" value="@id" />
+                    <div style="text-align: center; margin-top: 6%;">
+                        <!-- Just calculate don't reload-->
+                        <input class="button" type="submit" name="buttonReview" value="Review" onclick="setSubmitButton(this); " />
+                        <!-- Just calculate and submit-->
+                        <input class="button" type="submit" name="buttonSubmit" value="Submit Quote" onclick="setSubmitButton(this)" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

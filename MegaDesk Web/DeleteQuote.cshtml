@@ -1,0 +1,104 @@
+﻿@{
+    Layout = null;
+    var customerName = "";
+    var width = "";
+    var depth = "";
+    var numberOfDrawers = "";
+    var material = "";
+    var orderDays = "";
+    var totalAmount = "";
+    var id = "";
+
+    if (IsPost && !Request["buttonDelete"].IsEmpty())
+    {
+
+        id = Request.Form["id"];
+
+        var db = Database.Open("Megadesk");
+        var updateCommand = "DELETE FROM Quote WHERE ID = @0";
+        db.Execute(updateCommand, id);
+        Response.Redirect("~/Megadesk");
+    }
+    
+    if(!IsPost)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            id = Request.QueryString["ID"];
+            var db = Database.Open("Megadesk");
+            var dbCommand = "SELECT * FROM Quote WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, id);
+
+            if (row != null)
+            {
+                customerName = row.CustomerName;
+                width = row.Width.ToString();
+                depth = row.Depth.ToString();
+                numberOfDrawers = row.NumberOfDrawers.ToString();
+                material = row.Material;
+                orderDays = row.OrderDays.ToString();
+                totalAmount = row.TotalAmount.ToString();
+            }
+            else
+            {
+                Validation.AddFormError("No quotes was selected.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No quotes was selected.");
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://fonts.googleapis.com/css?family=Cardo:400,700|Oswald" rel="stylesheet">
+    <link href="~/Styles.css" rel="stylesheet">
+    <title>Delete Quote</title>
+</head>
+<body>
+   
+    <div id="content">
+        <!-- Using a nested DIV to set margin instead of setting padding
+        to #content onsubmit="validateForm()"-->
+        <div style="margin: 10%;">
+            <form method="post">
+                <div>
+                    <h1>Quote Information</h1>
+                    @Html.ValidationSummary()
+
+                    <span>Customer Name:</span>
+                    <span>@customerName</span><br><br>
+
+                    <span>Width:</span>
+                    <span>@width</span><br><br>
+
+                    <span>Depth:</span>
+                    <span>@depth</span><br><br>
+
+                    <span>Number of drawers:</span>
+                    <span>@numberOfDrawers</span><br><br>
+
+                    <span>Material:</span>
+                    <span>@material</span><br><br>
+
+                    <span>Order Days:</span>
+                    <span>@orderDays</span><br><br>
+
+                    <span>Total Amount:</span>
+                    <span>@totalAmount$</span><br><br>
+
+                    <div style="text-align: center; margin-top: 6%;">
+                        <input type="hidden" name="id" value="@id" />
+                        <input class="button" type="submit" name="buttonDelete" value="Delete Quote" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

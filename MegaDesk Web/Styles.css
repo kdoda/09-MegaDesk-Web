@@ -1,0 +1,63 @@
+﻿body {
+    font-family: 'Cardo', serif;
+    margin: auto;
+    width: 45%;
+}
+
+#content {
+    width: 100%;
+    margin: auto;
+    margin-top: 10%;
+    border: 3px solid black;
+    font-size: 18px;
+    background-color: #484d5c; /* Light Blue */
+    border-color: black;
+    border-radius: 25px;
+    color: #c0ccd4; /* Dark Grey*/
+}
+
+h1 {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    color: #ffce00; /* Yellow */
+    text-align: center;
+    font-size: 3vw;
+}
+
+footer {
+    text-align: center;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    padding: 10px 30px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.textInput {
+    padding: 4px 8px;
+    box-sizing: border-box;
+    border: 1px solid #555;
+    outline: none;
+    width: 100%;
+}
+
+select {
+    padding: 4px 8px;
+    box-sizing: border-box;
+    border: 1px solid #555;
+    outline: none;
+}
+
+input:focus {
+    background-color: lightblue;
+}
+
+label {
+    margin: 4%;
+}
